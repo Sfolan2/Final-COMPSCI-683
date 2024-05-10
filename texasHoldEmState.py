@@ -17,6 +17,10 @@ from RandomPlayer import RandomPlayer
 
 
 class TexasHoldemState():
+    """
+    Create a TexasHoldemState for each game state. These serve as the states
+    for the MCTS
+    """
     def __init__(self, valid_action, hole_card, game_state, emulator):
         self.valid_action = valid_action
         self.hole_card = hole_card
@@ -33,6 +37,9 @@ class TexasHoldemState():
         return act_list
 
     def takeAction(self, action):
+        """
+        We make use of Emulator to get our next state
+        """
         new_game_state, events = self.emulator.apply_action(self.game_state, action)
         newState = deepcopy(self)
         newState.game_state = new_game_state
@@ -49,12 +56,14 @@ class RLPLayer(BasePokerPlayer):
 
     # Setup Emulator object by registering game information
     def receive_game_start_message(self, game_info):
+        # Set up Game
         player_num = game_info["player_num"]
         max_round = game_info["rule"]["max_round"]
         small_blind_amount = game_info["rule"]["small_blind_amount"]
         ante_amount = game_info["rule"]["ante"]
         blind_structure = game_info["rule"]["blind_structure"]
-        
+
+        # Set up Emulator
         self.emulator = Emulator()
         self.emulator.set_game_rule(player_num, max_round, small_blind_amount, ante_amount)
         self.emulator.set_blind_structure(blind_structure)
@@ -68,15 +77,16 @@ class RLPLayer(BasePokerPlayer):
         # self.game_state = self.emulator.start_new_round(self.game_state)
 
     def declare_action(self, valid_actions, hole_card, round_state):
-        # game_state = restore_game_state(round_state)
+        # Set up new game_state with hole cards
         game_state = deepcopy_game_state(self._setup_game_state(round_state, hole_card))
-        visualize_round_state(round_state)
-        # decide action by using some simulation result
+        # visualize_round_state(round_state)
+        # Decide action by using MCTS
         searcher = mcts(timeLimit=90)
         init_state = TexasHoldemState(valid_actions, hole_card, game_state, self.emulator)
         bestAction = searcher.search(initialState=init_state)
         # updated_state, events = self.emulator.apply_action(game_state, "fold")
-        print(bestAction)
+        # print(bestAction)
+        # Return best action amount pair
         if bestAction == 'fold':
             call_action_info = valid_actions[0]
             action, amount = call_action_info["action"], call_action_info["amount"]
