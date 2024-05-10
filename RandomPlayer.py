@@ -16,6 +16,9 @@ class RandomPlayer(BasePokerPlayer):
     #print("------------VALID_ACTIONS----------")
     #pp.pprint(valid_actions)
     #print("-------------------------------")
+    """
+    Randomly returns an appropriate action, amount pair
+    """
     r = rand.random()
     if r <= 0.5:
       call_action_info = valid_actions[1]
