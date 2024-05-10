@@ -52,7 +52,7 @@ class TexasHoldemState():
         return self.game_state["table"].serialize()[1][0][2] > 10000
 
 
-class RLPLayer(BasePokerPlayer):
+class Group4(BasePokerPlayer):
 
     # Setup Emulator object by registering game information
     def receive_game_start_message(self, game_info):
